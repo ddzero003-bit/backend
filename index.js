@@ -13,12 +13,14 @@ dotenv.config();
 
 const app = express();
 
-// สำหรับ ES Modules ต้องสร้าง __dirname เอง
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ===== middleware =====
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'https://new-fontend-pg9u.vercel.app',
+  credentials: true
+}));
 app.use(express.json());
 app.use(morgan("dev"));
 
@@ -34,15 +36,9 @@ app.get("/health", (req, res) => {
   res.json({ status: "OK" });
 });
 
-// ===== serve frontend (React/Vite dist) =====
-app.use(express.static(path.join(__dirname, "dist")));
-
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// ===== start server =====
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log("Server start at port :", PORT);
-});
+// ✅ ลบ app.listen ออก เพราะ Vercel เป็น Serverless
+export default app;
